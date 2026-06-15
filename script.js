@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const fixedGrids = document.querySelectorAll('.questions-grid[data-fixed]');
     fixedGrids.forEach(grid => {
         const numQuestions = parseInt(grid.getAttribute('data-fixed'), 10);
+        const optionsCount = parseInt(grid.getAttribute('data-options') || '4', 10);
         for (let i = 0; i < numQuestions; i++) {
-            grid.appendChild(createQuestionElement(grid.children.length + 1));
+            grid.appendChild(createQuestionElement(grid.children.length + 1, 'circle', optionsCount));
         }
     });
 
@@ -92,12 +93,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 nameContainer.style.display = 'none';
             }
             
+            // Save report to localStorage
+            const modelTestInput = document.getElementById('modelTestNum') ? document.getElementById('modelTestNum').value.trim() : '';
+            const reportData = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                name: nameInput || 'Anonymous',
+                modelTest: modelTestInput || 'N/A',
+                score: result.total_score,
+                max: result.total_max,
+                passed: result.passed
+            };
+            saveReport(reportData);
+            
             // Generate Image
             generateImage();
     });
 });
 
-function createQuestionElement(index, defaultType = 'circle') {
+function createQuestionElement(index, defaultType = 'circle', optionsCount = 4) {
     const row = document.createElement('div');
     row.className = 'question-row';
     
@@ -124,12 +138,11 @@ function createQuestionElement(index, defaultType = 'circle') {
     const circleDiv = document.createElement('div');
     circleDiv.className = 'q-bubbles';
     const qName = `q-${Math.random().toString(36).substr(2, 9)}`;
-    circleDiv.innerHTML = `
-        <label class="omr-btn"><input type="radio" name="${qName}" value="1"><span>1</span></label>
-        <label class="omr-btn"><input type="radio" name="${qName}" value="2"><span>2</span></label>
-        <label class="omr-btn"><input type="radio" name="${qName}" value="3"><span>3</span></label>
-        <label class="omr-btn"><input type="radio" name="${qName}" value="4"><span>4</span></label>
-    `;
+    let bubblesHTML = '';
+    for(let i=1; i<=optionsCount; i++) {
+        bubblesHTML += `<label class="omr-btn"><input type="radio" name="${qName}" value="${i}"><span>${i}</span></label>`;
+    }
+    circleDiv.innerHTML = bubblesHTML;
     
     const textDiv = document.createElement('div');
     textDiv.className = 'q-text';
@@ -178,6 +191,7 @@ window.addQuestion = function(mondaiId) {
     const grid = document.querySelector(`#${mondaiId} .questions-grid`);
     const newIndex = grid.children.length + 1;
     let defaultType = 'circle';
+    const optionsCount = parseInt(grid.getAttribute('data-options') || '4', 10);
     
     // Inherit the type from the last question in the grid
     if (grid.children.length > 0) {
@@ -187,7 +201,7 @@ window.addQuestion = function(mondaiId) {
         }
     }
     
-    grid.appendChild(createQuestionElement(newIndex, defaultType));
+    grid.appendChild(createQuestionElement(newIndex, defaultType, optionsCount));
 };
 
 window.removeQuestion = function(mondaiId) {
@@ -266,3 +280,64 @@ function generateImage() {
         // Hide wrapper again if we only want download, but let's keep it visible
     });
 }
+
+// Report functionality
+function saveReport(reportData) {
+    let reports = JSON.parse(localStorage.getItem('jlpt_reports') || '[]');
+    reports.push(reportData);
+    localStorage.setItem('jlpt_reports', JSON.stringify(reports));
+}
+
+window.toggleReportsModal = function() {
+    const modal = document.getElementById('reports-modal');
+    if (modal.style.display === 'none') {
+        loadReports();
+        modal.style.display = 'flex';
+    } else {
+        modal.style.display = 'none';
+    }
+};
+
+function loadReports() {
+    const tbody = document.getElementById('reports-tbody');
+    const noMsg = document.getElementById('no-reports-msg');
+    const table = document.querySelector('.reports-table');
+    let reports = JSON.parse(localStorage.getItem('jlpt_reports') || '[]');
+    
+    tbody.innerHTML = '';
+    
+    if (reports.length === 0) {
+        noMsg.style.display = 'block';
+        table.style.display = 'none';
+    } else {
+        noMsg.style.display = 'none';
+        table.style.display = 'table';
+        
+        // Sort by id descending (newest first)
+        reports.sort((a, b) => b.id - a.id);
+        
+        reports.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.date}</td>
+                <td>${r.name}</td>
+                <td>${r.modelTest}</td>
+                <td>${r.score} / ${r.max}</td>
+                <td style="color: ${r.passed ? 'var(--success-color)' : 'var(--danger-color)'}; font-weight: bold;">
+                    ${r.passed ? 'Passed' : 'Failed'}
+                </td>
+                <td><button class="btn-delete" onclick="deleteReport(${r.id})">Delete</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+}
+
+window.deleteReport = function(id) {
+    if(confirm('Are you sure you want to delete this report?')) {
+        let reports = JSON.parse(localStorage.getItem('jlpt_reports') || '[]');
+        reports = reports.filter(r => r.id !== id);
+        localStorage.setItem('jlpt_reports', JSON.stringify(reports));
+        loadReports();
+    }
+};
