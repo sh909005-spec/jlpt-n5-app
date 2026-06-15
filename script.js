@@ -457,7 +457,7 @@ function loadReports() {
                     ${r.passed ? 'Passed' : 'Failed'}
                 </td>
                 <td>
-                    ${r.formState ? `<button class="btn-load" onclick="loadReportSheet(${r.id})" style="background-color: #dbeafe; color: var(--primary-color); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem; transition: background-color 0.2s;">Load Sheet</button>` : ''}
+                    ${r.formState ? `<button class="btn-load" onclick="loadReportSheet(${r.id})" style="background-color: #dbeafe; color: var(--primary-color); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem; transition: background-color 0.2s;">View Answer Sheet</button>` : ''}
                     <button class="btn-delete" onclick="deleteReport(${r.id})">Delete</button>
                 </td>
             `;
