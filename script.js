@@ -15,7 +15,21 @@ document.addEventListener('DOMContentLoaded', () => {
         grid.appendChild(createQuestionElement(1));
     });
 
+    // Load draft if exists
+    const draft = localStorage.getItem('jlpt_draft');
+    if (draft) {
+        try {
+            loadFormState(JSON.parse(draft));
+        } catch(e) { console.error('Error loading draft', e); }
+    }
+    
+    // Add autosave listener
     const form = document.getElementById('jlptForm');
+    form.addEventListener('change', autoSave);
+    form.addEventListener('input', autoSave);
+    document.getElementById('examineeName')?.addEventListener('input', autoSave);
+    document.getElementById('modelTestNum')?.addEventListener('input', autoSave);
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -102,14 +116,130 @@ document.addEventListener('DOMContentLoaded', () => {
                 modelTest: modelTestInput || 'N/A',
                 score: result.total_score,
                 max: result.total_max,
-                passed: result.passed
+                passed: result.passed,
+                formState: getFormState()
             };
             saveReport(reportData);
+            
+            // Clear draft after submit
+            localStorage.removeItem('jlpt_draft');
             
             // Generate Image
             generateImage();
     });
 });
+
+function getFormState() {
+    const state = {
+        examineeName: document.getElementById('examineeName') ? document.getElementById('examineeName').value : '',
+        modelTestNum: document.getElementById('modelTestNum') ? document.getElementById('modelTestNum').value : '',
+        sections: {}
+    };
+
+    const sections = document.querySelectorAll('section.card');
+    sections.forEach(section => {
+        const sectionId = section.id;
+        state.sections[sectionId] = {};
+        
+        const mondais = section.querySelectorAll('.mondai-container');
+        mondais.forEach(mondai => {
+            const mondaiId = mondai.id;
+            const markInput = mondai.querySelector('.mark-input');
+            const questionsGrid = mondai.querySelector('.questions-grid');
+            
+            const mondaiState = {
+                mark: markInput ? markInput.value : 1,
+                questions: []
+            };
+            
+            const rows = questionsGrid.querySelectorAll('.question-row');
+            rows.forEach(row => {
+                const typeSelect = row.querySelector('.q-type-select');
+                const type = typeSelect ? typeSelect.value : 'circle';
+                
+                let value = '';
+                if (type === 'circle') {
+                    const checkedRadio = row.querySelector('input[type="radio"]:checked');
+                    if (checkedRadio) value = checkedRadio.value;
+                } else {
+                    const textInput = row.querySelector('.omr-text');
+                    if (textInput) value = textInput.value;
+                }
+                
+                const correctCheck = row.querySelector('.correct-checkbox');
+                const correct = correctCheck ? correctCheck.checked : false;
+                
+                const optionsCount = row.querySelectorAll('.omr-btn').length || 4;
+                
+                mondaiState.questions.push({
+                    type,
+                    value,
+                    correct,
+                    optionsCount
+                });
+            });
+            
+            state.sections[sectionId][mondaiId] = mondaiState;
+        });
+    });
+    
+    return state;
+}
+
+window.loadFormState = function(state) {
+    if (!state) return;
+    
+    if (state.examineeName && document.getElementById('examineeName')) {
+        document.getElementById('examineeName').value = state.examineeName;
+    }
+    if (state.modelTestNum && document.getElementById('modelTestNum')) {
+        document.getElementById('modelTestNum').value = state.modelTestNum;
+    }
+    
+    if (!state.sections) return;
+    
+    for (const sectionId in state.sections) {
+        for (const mondaiId in state.sections[sectionId]) {
+            const mondaiData = state.sections[sectionId][mondaiId];
+            const mondai = document.getElementById(mondaiId);
+            if (!mondai) continue;
+            
+            const markInput = mondai.querySelector('.mark-input');
+            if (markInput) markInput.value = mondaiData.mark;
+            
+            const questionsGrid = mondai.querySelector('.questions-grid');
+            if (!questionsGrid) continue;
+            
+            // Clear existing questions
+            questionsGrid.innerHTML = '';
+            
+            mondaiData.questions.forEach((qData, idx) => {
+                const qEl = createQuestionElement(idx + 1, qData.type, qData.optionsCount);
+                questionsGrid.appendChild(qEl);
+                
+                // Restore value
+                if (qData.type === 'circle' && qData.value) {
+                    const radio = qEl.querySelector(`input[type="radio"][value="${qData.value}"]`);
+                    if (radio) radio.checked = true;
+                } else if (qData.type === 'text' && qData.value) {
+                    const textInput = qEl.querySelector('.omr-text');
+                    if (textInput) textInput.value = qData.value;
+                }
+                
+                // Restore correct checkbox
+                if (qData.correct) {
+                    const correctCheck = qEl.querySelector('.correct-checkbox');
+                    if (correctCheck) correctCheck.checked = true;
+                }
+            });
+        }
+    }
+};
+
+function autoSave() {
+    const state = getFormState();
+    localStorage.setItem('jlpt_draft', JSON.stringify(state));
+}
 
 function createQuestionElement(index, defaultType = 'circle', optionsCount = 4) {
     const row = document.createElement('div');
@@ -326,7 +456,10 @@ function loadReports() {
                 <td style="color: ${r.passed ? 'var(--success-color)' : 'var(--danger-color)'}; font-weight: bold;">
                     ${r.passed ? 'Passed' : 'Failed'}
                 </td>
-                <td><button class="btn-delete" onclick="deleteReport(${r.id})">Delete</button></td>
+                <td>
+                    ${r.formState ? `<button class="btn-load" onclick="loadReportSheet(${r.id})" style="background-color: #dbeafe; color: var(--primary-color); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem; transition: background-color 0.2s;">Load Sheet</button>` : ''}
+                    <button class="btn-delete" onclick="deleteReport(${r.id})">Delete</button>
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -339,5 +472,23 @@ window.deleteReport = function(id) {
         reports = reports.filter(r => r.id !== id);
         localStorage.setItem('jlpt_reports', JSON.stringify(reports));
         loadReports();
+    }
+};
+
+window.loadReportSheet = function(id) {
+    if(confirm('Loading this answer sheet will overwrite your current progress. Continue?')) {
+        let reports = JSON.parse(localStorage.getItem('jlpt_reports') || '[]');
+        const report = reports.find(r => r.id === id);
+        if (report && report.formState) {
+            loadFormState(report.formState);
+            toggleReportsModal(); // close modal
+        }
+    }
+};
+
+window.clearAnswerSheet = function() {
+    if (confirm('Are you sure you want to clear all answers and start a new exam?')) {
+        localStorage.removeItem('jlpt_draft');
+        location.reload();
     }
 };
