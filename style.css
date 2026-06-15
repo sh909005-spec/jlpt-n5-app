@@ -1,0 +1,481 @@
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg-color: #f3f4f6;
+    --card-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --success-color: #22c55e;
+    --danger-color: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.card h2 {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
+}
+
+.mondai-container {
+    background-color: #f9fafb;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.mondai-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.mondai-header h3 {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.mark-input {
+    width: 80px;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.mark-input:focus {
+    border-color: var(--primary-color);
+}
+
+.questions-grid {
+    /* Removed old grid layout, now styled as a table in OMR section below */
+}
+
+/* OMR Table Layout */
+.questions-grid {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--text-main);
+    background-color: white;
+    width: fit-content;
+    margin: 0 auto 1rem auto;
+}
+
+.question-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--text-main);
+}
+.question-row:last-child {
+    border-bottom: none;
+}
+
+.q-num {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-right: 1px solid var(--text-main);
+    padding: 0.2rem 0;
+    background-color: #f9fafb;
+}
+
+.q-type {
+    width: 60px;
+    border-right: 1px solid var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.2rem;
+}
+
+.q-type-select {
+    font-size: 0.75rem;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    outline: none;
+    border-radius: 2px;
+}
+
+.q-input-area {
+    padding: 0;
+    border-right: 1px solid var(--text-main);
+    flex-grow: 1;
+    min-width: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.q-bubbles {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    align-items: center;
+}
+
+.omr-btn {
+    display: inline-flex;
+    position: relative;
+    cursor: pointer;
+}
+
+.omr-btn input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.omr-btn span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--text-main);
+    color: var(--text-main);
+    font-size: 11px;
+    font-weight: 600;
+    background-color: transparent;
+    transition: all 0.1s ease;
+}
+
+.omr-btn input[type="radio"]:checked ~ span {
+    background-color: var(--text-main);
+    color: var(--text-main);
+}
+
+.q-text {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.omr-text {
+    width: 100%;
+    height: 100%;
+    padding: 0.4rem 0.5rem;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    font-family: "Meiryo", "Yu Gothic", "Hiragino Kaku Gothic Pro", sans-serif;
+    outline: none;
+}
+
+.omr-text:focus {
+    background-color: #f3f4f6; /* Slight highlight instead of border */
+}
+
+.q-correct-box {
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0fdf4;
+}
+
+.q-correct-box input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--success-color);
+    cursor: pointer;
+}
+
+.btn-add, .btn-remove {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-add {
+    background-color: #dbeafe;
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+.btn-add:hover {
+    background-color: #bfdbfe;
+}
+
+.btn-remove {
+    background-color: #fee2e2;
+    color: var(--danger-color);
+}
+
+.btn-remove:hover {
+    background-color: #fecaca;
+}
+
+.submit-container {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.btn-submit {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 3rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* =========================================
+   CERTIFICATE DESIGN (MATCHING PROVIDED IMAGE)
+   ========================================= */
+
+#certificate-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background-color: var(--bg-color);
+}
+
+.certificate-container {
+    width: 700px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 3rem 4rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.cert-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cert-header p {
+    font-size: 14px;
+    color: #555;
+    letter-spacing: 2px;
+}
+
+.cert-divider {
+    border: none;
+    border-top: 2px solid #333;
+    margin: 1.5rem 0;
+}
+
+.cert-level-box {
+    border: 2px solid #333;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cert-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.cert-level {
+    font-size: 42px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.cert-result-status {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cert-result-status h3 {
+    font-size: 22px;
+    margin-top: 0.5rem;
+}
+
+.status-passed {
+    color: var(--success-color);
+}
+
+.status-failed {
+    color: var(--danger-color);
+}
+
+.cert-score-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.cert-score-table th, .cert-score-table td {
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 1rem;
+}
+
+.cert-score-table th {
+    background-color: #fafafa;
+    font-size: 13px;
+    color: #333;
+    font-weight: bold;
+}
+
+.col-section {
+    width: 70%;
+}
+
+.col-total {
+    width: 30%;
+}
+
+.score-section-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none !important;
+    padding: 1rem !important;
+}
+
+.border-bottom-none {
+    border-bottom: none !important;
+}
+
+.section-title {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title .jp-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.section-title .en-title {
+    font-size: 12px;
+    color: #666;
+}
+
+.section-score {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.total-score-cell {
+    vertical-align: middle;
+}
+
+.total-score-value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.cert-reference {
+    text-align: center;
+}
+
+.ref-cards {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    gap: 1rem;
+}
+
+.ref-card {
+    flex: 1;
+    border: 1px solid #ddd;
+    background-color: #fafafa;
+    padding: 1rem;
+    text-align: center;
+}
+
+.ref-card .jp-title {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.ref-card .en-title {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.ref-grade {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+
+.cert-footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 12px;
+    color: #888;
+}
+
+.cert-footer strong {
+    color: var(--primary-color);
+}
