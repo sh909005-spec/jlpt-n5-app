@@ -516,3 +516,62 @@ window.clearAnswerSheet = function() {
         location.reload();
     }
 };
+
+// Timer Functionality
+const timers = {};
+
+window.startTimer = function(id, minutes) {
+    if (!timers[id]) {
+        timers[id] = {
+            timeLeft: minutes * 60,
+            interval: null,
+            isRunning: false
+        };
+    }
+    
+    if (timers[id].isRunning) return;
+    
+    timers[id].isRunning = true;
+    timers[id].interval = setInterval(() => {
+        if (timers[id].timeLeft > 0) {
+            timers[id].timeLeft--;
+            updateTimerDisplay(id);
+        } else {
+            clearInterval(timers[id].interval);
+            timers[id].isRunning = false;
+            document.getElementById(`${id}-timer-display`).style.color = 'var(--danger-color)';
+        }
+    }, 1000);
+};
+
+window.pauseTimer = function(id) {
+    if (timers[id] && timers[id].isRunning) {
+        clearInterval(timers[id].interval);
+        timers[id].isRunning = false;
+    }
+};
+
+window.resetTimer = function(id, minutes) {
+    if (timers[id]) {
+        clearInterval(timers[id].interval);
+        timers[id].isRunning = false;
+    }
+    timers[id] = {
+        timeLeft: minutes * 60,
+        interval: null,
+        isRunning: false
+    };
+    updateTimerDisplay(id);
+    const display = document.getElementById(`${id}-timer-display`);
+    if (display) display.style.color = 'var(--text-main)';
+};
+
+function updateTimerDisplay(id) {
+    if (!timers[id]) return;
+    const display = document.getElementById(`${id}-timer-display`);
+    if (!display) return;
+    
+    const minutes = Math.floor(timers[id].timeLeft / 60);
+    const seconds = timers[id].timeLeft % 60;
+    display.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}

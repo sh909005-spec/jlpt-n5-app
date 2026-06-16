@@ -23,7 +23,17 @@
         <form id="jlptForm">
             <!-- Kanji & Vocabulary Section -->
             <section class="card" id="vocabSection">
-                <h2>Kanji & Vocabulary (文字・語彙)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                    <h2 style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Kanji & Vocabulary (文字・語彙)</h2>
+                    <div class="timer-container">
+                        <div class="timer-display" id="vocab-timer-display">25:00</div>
+                        <div class="timer-controls">
+                            <button type="button" class="btn-timer start-btn" onclick="startTimer('vocab', 25)">Start</button>
+                            <button type="button" class="btn-timer pause-btn" onclick="pauseTimer('vocab')">Pause</button>
+                            <button type="button" class="btn-timer reset-btn" onclick="resetTimer('vocab', 25)">Reset</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="mondai-container" id="vocab-mondai-1">
                     <div class="mondai-header">
                         <h3>Mondai 1</h3>
@@ -64,7 +74,17 @@
 
             <!-- Grammar Section -->
             <section class="card" id="grammarSection">
-                <h2>Grammar (文法) - Part of Grammar & Reading</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                    <h2 style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Grammar (文法) - Part of Grammar & Reading</h2>
+                    <div class="timer-container">
+                        <div class="timer-display" id="grammar-timer-display">50:00</div>
+                        <div class="timer-controls">
+                            <button type="button" class="btn-timer start-btn" onclick="startTimer('grammar', 50)">Start</button>
+                            <button type="button" class="btn-timer pause-btn" onclick="pauseTimer('grammar')">Pause</button>
+                            <button type="button" class="btn-timer reset-btn" onclick="resetTimer('grammar', 50)">Reset</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="mondai-container" id="grammar-mondai-1">
                     <div class="mondai-header">
                         <h3>Mondai 1</h3>
