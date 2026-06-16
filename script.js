@@ -453,6 +453,47 @@ window.toggleReportsModal = function() {
 };
 
 function loadReports() {
+    // Migrate old reports from any previous localStorage keys
+    try {
+        let migrated = false;
+        let currentReports = JSON.parse(localStorage.getItem('jlpt_reports') || '[]');
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key === 'jlpt_reports' || key === 'jlpt_draft') continue;
+            
+            const data = localStorage.getItem(key);
+            if (data && data.startsWith('[')) {
+                const parsed = JSON.parse(data);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    // Check if it looks like our report object
+                    if (parsed[0].score !== undefined && parsed[0].date !== undefined) {
+                        currentReports = [...currentReports, ...parsed];
+                        localStorage.removeItem(key);
+                        migrated = true;
+                    }
+                }
+            }
+        }
+        
+        if (migrated) {
+            // Remove duplicates and ensure IDs
+            const uniqueReports = [];
+            const ids = new Set();
+            for (const r of currentReports) {
+                const uniqueId = r.id !== undefined ? r.id : (Date.now() + Math.random());
+                r.id = uniqueId;
+                if (!ids.has(uniqueId)) {
+                    ids.add(uniqueId);
+                    uniqueReports.push(r);
+                }
+            }
+            localStorage.setItem('jlpt_reports', JSON.stringify(uniqueReports));
+        }
+    } catch(e) {
+        console.error("Error migrating old reports:", e);
+    }
+
     const tbody = document.getElementById('reports-tbody');
     const noMsg = document.getElementById('no-reports-msg');
     const table = document.querySelector('.reports-table');
