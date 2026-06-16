@@ -169,12 +169,16 @@ function getFormState() {
                 const correctCheck = row.querySelector('.correct-checkbox');
                 const correct = correctCheck ? correctCheck.checked : false;
                 
+                const wrongCheck = row.querySelector('.wrong-checkbox');
+                const wrong = wrongCheck ? wrongCheck.checked : false;
+                
                 const optionsCount = row.querySelectorAll('.omr-btn').length || 4;
                 
                 mondaiState.questions.push({
                     type,
                     value,
                     correct,
+                    wrong,
                     optionsCount
                 });
             });
@@ -226,10 +230,14 @@ window.loadFormState = function(state) {
                     if (textInput) textInput.value = qData.value;
                 }
                 
-                // Restore correct checkbox
+                // Restore correct/wrong checkbox
                 if (qData.correct) {
                     const correctCheck = qEl.querySelector('.correct-checkbox');
                     if (correctCheck) correctCheck.checked = true;
+                }
+                if (qData.wrong) {
+                    const wrongCheck = qEl.querySelector('.wrong-checkbox');
+                    if (wrongCheck) wrongCheck.checked = true;
                 }
             });
         }
@@ -300,14 +308,30 @@ function createQuestionElement(index, defaultType = 'circle', optionsCount = 4) 
         }
     });
 
-    // 4. Grading Area (Correct Checkbox)
+    // 4. Grading Area (Correct & Wrong Checkboxes)
     const gradingDiv = document.createElement('div');
     gradingDiv.className = 'q-correct-box';
+    
     const correctCheck = document.createElement('input');
     correctCheck.type = 'checkbox';
     correctCheck.className = 'correct-checkbox';
     correctCheck.title = 'Mark as Correct';
+    
+    const wrongCheck = document.createElement('input');
+    wrongCheck.type = 'checkbox';
+    wrongCheck.className = 'wrong-checkbox';
+    wrongCheck.title = 'Mark as Wrong';
+    
+    // Make them mutually exclusive
+    correctCheck.addEventListener('change', () => {
+        if (correctCheck.checked) wrongCheck.checked = false;
+    });
+    wrongCheck.addEventListener('change', () => {
+        if (wrongCheck.checked) correctCheck.checked = false;
+    });
+    
     gradingDiv.appendChild(correctCheck);
+    gradingDiv.appendChild(wrongCheck);
     
     row.appendChild(numDiv);
     row.appendChild(typeDiv);
